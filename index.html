@@ -3,8 +3,71 @@
 <head>
     <meta charset="UTF-8" />
     <title>JLCC Website</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+        }
+
+        div#bg, iframe[youtube] {
+            width: 100vw;
+            height: 100vh;
+
+            position:absolute;
+            top:0%;
+            left: 0%;
+            z-index: -1;
+            overflow: hidden;
+            scrollbar-width: none;
+        }
+
+        .main-wrapper {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            color: white;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        a {
+            color: lightblue;
+        }
+
+        .socials-wrapper {
+            height: fit-content;
+            width: fit-content;
+            display: flex;
+            flex-direction: row;
+        }
+    </style>
 </head>
 <body>
-    Under construction!
+    <!-- Background -->
+    <div id="bg">
+        <iframe youtube width="560" height="315" src="https://www.youtube.com/embed/dfVK7ld38Ys?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <div style="background-color:black; opacity: 0.7; width: 100%; height: 100%;"></div>
+    </div>
+
+    <!-- Main content-->
+    <div class="main-wrapper">
+        <h1>Check out Japanese at UNM!</h1>
+        <p><a href="https://lcl.unm.edu/languages/japanese.html">The main UNM Japanese website can be found here!</a></p>
+
+        <div>
+            <div>
+                <p>JLCC Club Server:</p>
+                <iframe src="https://discord.com/widget?id=1347307757245829180&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+            </div>
+
+            <div>
+                <p>Add us on line!</p>
+                <div class="line-it-button" data-lang="ja" data-type="friend" data-env="PROD" data-count="true" data-home="true" data-lineId="@395alcut" style="display: none;"></div>
+                <script src="https://www.line-website.com/social-plugins/js/thirdparty/loader.min.js" async="async" defer="defer"></script>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
