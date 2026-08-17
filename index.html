@@ -35,6 +35,13 @@
         a {
             color: lightblue;
         }
+
+        .socials-wrapper {
+            height: fit-content;
+            width: fit-content;
+            display: flex;
+            flex-direction: row;
+        }
     </style>
 </head>
 <body>
@@ -49,8 +56,18 @@
         <h1>Check out Japanese at UNM!</h1>
         <p><a href="https://lcl.unm.edu/languages/japanese.html">The main UNM Japanese website can be found here!</a></p>
 
-        <p>JLCC Club Server:</p>
-        <iframe src="https://discord.com/widget?id=1347307757245829180&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+        <div>
+            <div>
+                <p>JLCC Club Server:</p>
+                <iframe src="https://discord.com/widget?id=1347307757245829180&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+            </div>
+
+            <div>
+                <p>Add us on line!</p>
+                <div class="line-it-button" data-lang="ja" data-type="friend" data-env="PROD" data-count="true" data-home="true" data-lineId="@395alcut" style="display: none;"></div>
+                <script src="https://www.line-website.com/social-plugins/js/thirdparty/loader.min.js" async="async" defer="defer"></script>
+            </div>
+        </div>
     </div>
 </body>
 </html>
