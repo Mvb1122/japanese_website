@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanji OCR Test</title>
+    <link rel="stylesheet" href="./ocr.css">
+</head>
+
+<body>
+    <div id="cover">
+        <h1>Loading...</h1>
+        <br>
+        <p>This can take some time on first boot!</p>
+    </div>
+
+    <div id="container">
+        <h1>How it works...</h1>
+        <br>
+        <p>Point your camera at Japanese text, then it will automatically scan and catalog what you've seen! Cool, isn't it? It runs offline; images stay on your device.</p>
+
+        <button id="start">Get started</button>
+        <button id="testButton">Test</button>
+    </div>
+</body>
+
+<script type="module" src="./ocr.mjs"></script>
+
+<script type="module">
+    import { OCR } from "./ocr.mjs";
+    console.log(OCR);
+    // After load, hide cover. 
+    document.getElementById('cover').style.display = 'none';
+
+    async function Test() {
+        console.log("Starting test...")
+        const output = await OCR('./test.png');
+        console.log("Finished test: " + output);
+    }
+
+    document.getElementById('testButton').addEventListener('click', Test);
+</script>
+
+</html>
