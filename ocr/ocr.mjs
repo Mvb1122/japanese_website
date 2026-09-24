@@ -1,64 +1,28 @@
-import {
-  AutoProcessor,
-  AutoModelForImageTextToText,
-  load_image,
-  TextStreamer,
-  RawImage
-} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+import { createWorker } from 'https://cdn.jsdelivr.net/npm/tesseract.js@5/+esm';
 
-// Load processor and model
-const model_id = "onnx-community/LFM2.5-VL-450M-ONNX";
-const processor = await AutoProcessor.from_pretrained(model_id);
-const model = await AutoModelForImageTextToText.from_pretrained(model_id, {
-  device: "webgpu",
-  dtype: {
-    embed_tokens: "fp16",
-    decoder_model_merged: "q4f16",
-    vision_encoder: "fp16",
-  },
+let activeCallback = null;
+let worker = await createWorker('jpn', 1, {
+    logger: ({ status, progress }) => {
+        if (typeof activeCallback !== 'function') return;
+
+        const pct = Math.round((progress ?? 0) * 100);
+        activeCallback(
+            `${status} ${Number.isFinite(pct) ? `(${pct}%)` : ''}`.trim()
+        );
+    }
 });
-
-// processor.image_processor.do_image_splitting = false; // Disable image splitting for this demo (faster)
-
-const messages = [
-  {
-    role: "user",
-    content: [
-      { type: "image" },
-      { type: "text", text: "テキストを抽出しなさい。" },
-    ],
-  },
-];
-const prompt = processor.apply_chat_template(messages, {
-  add_generation_prompt: true,
-});
+// await worker.terminate(); -- For shutdown.
 
 /**
  * OCRs an image from blob.
  * @param {Blob} blob image blob
- * @param {(string) => void} callback streaming callback.
- * @returns {Promise<string>} output text.
+ * @param {(string) => void} callback streaming callback for recognition progress.
+ * @returns {Promise<import('./tesseract_resp').OCRMetadata>} output text.
  */
-export async function OCR(blob, callback) {
-    // Prepare inputs
-    const image = await RawImage.fromBlob(blob);
-    const inputs = await processor(image, prompt, { add_special_tokens: false });
+export async function OCR(blob, callback = () => {}) {
+  // Stream progress as Tesseract recognizes the image.
+  const ret = await worker.recognize(blob);
+  activeCallback = callback;
 
-    const outputs = await model.generate({
-      ...inputs,
-      max_new_tokens: 2048,
-      streamer: new TextStreamer(processor.tokenizer, {
-          skip_prompt: true,
-          callback_function: (text) => { if (callback) callback(text) },
-      }),
-    });
-
-    // Decode output
-    const decoded = processor.batch_decode(
-    outputs.slice(null, 
-      [inputs.input_ids.dims.at(-1), null]),
-      { skip_special_tokens: true },
-    );
-    console.log(decoded[0]);
-    return decoded[0];
+  return ret;
 }
