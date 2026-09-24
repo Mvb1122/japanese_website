@@ -3,6 +3,7 @@ import {
   AutoModelForImageTextToText,
   load_image,
   TextStreamer,
+  RawImage
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
 
 // Load processor and model
@@ -32,9 +33,9 @@ const prompt = processor.apply_chat_template(messages, {
   add_generation_prompt: true,
 });
 
-export async function OCR(url) {
+export async function OCR(blob) {
     // Prepare inputs
-    const image = await load_image(url);
+    const image = RawImage.fromBlob(blob);
     const inputs = await processor(image, prompt, { add_special_tokens: false });
 
     const outputs = await model.generate({

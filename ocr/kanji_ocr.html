@@ -14,22 +14,40 @@
         <p>This can take some time on first boot!</p>
     </div>
 
-    <div class="container">
+    <div class="container" id="startup" hidden>
         <h1>How it works...</h1>
         <br>
         <p>Point your camera at Japanese text, then it will automatically scan and catalog what you've seen! Cool, isn't it? It runs offline; images stay on your device.</p>
 
         <button id="start">Get started</button>
-        <button id="testButton">Test</button>
+        <button id="testButton" hidden>Test</button>
     </div>
 
-    <div id="startup" class="container">
+    <div id="nameContainer" class="container" hidden>
         <h1>First, what's your name?</h1>
-        <input type="text" name="nameInput" id="nameInput">
+        <input type="text" name="nameInput" id="nameInput"> <button id="nameSubmitButton">Submit</button>
         <label for="nameInput">Please enter your name here!</label>
+    </div>
+
+    <div id="homescreen" class="container" hidden>
+        <h1 id="greeting"></h1>
+
+        <p id="scanMessage"></p>
+        <input
+            type="file"
+            id="environment"
+            capture="environment"
+            accept="image/*"
+        >
+        <label for="environment">Click above to scan or input a chunk of text!!</label>
+    </div>
+
+    <div id="scanScreen" class="container" hidden>
+        
     </div>
 </body>
 
+<!-- Actual everything is in index -->
 <script type="module" src="./index.mjs"></script>
 
 </html>
