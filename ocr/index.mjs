@@ -1,5 +1,5 @@
 import { OCR } from "./ocr.mjs";
-import { getSave, hasSave } from "./save_management.mjs";
+import { addSample, getSave, hasSave } from "./save_management.mjs";
 
 const containers = {
     cover: {
@@ -83,19 +83,83 @@ function setupHomescreen() {
 
         for (let i = 0; i < files.length; i++) {
             const image = files.item(i);
+            setScanRejectButtonVisibility(false)
             document.getElementById("scanTitle").innerText = image.name;
-            document.getElementById("scanImage").src = URL.createObjectURL(image);
+            const imageURL = URL.createObjectURL(image);
+            document.getElementById("scanImage").src = imageURL;
             document.getElementById("scanText").innerText = "";
         
             // OCR it. 
-            const output = await OCR(image, (chunk) => {
-                document.getElementById("scanText").innerText += chunk;
+            const output = await OCR(image, (status) => {
+                document.getElementById("scanText").innerText = status;
             });
 
-            console.log(output);
+            // Filter out low confidence
+            for (const block of output.data.blocks)
+                if (block.confidence <= 0.7)
+                    output.data.blocks.splice(output.data.blocks.indexOf(block), 1)
+
+            // Display recognized text, then wait for confirmation.
+            if (output.data.blocks.length > 0) {
+                document.getElementById("scanText").innerText = output.data.blocks.reduce((whole, part) => whole += part.text, "");
+                document.getElementById("temporarySamples").innerHTML = "";
+                let preppedSamples = [];
+                for (const block of output.data.blocks)
+                    for (const paragraph of block.paragraphs)
+                        for (const line of paragraph.lines)
+                            for (const words of line.words) {
+                                // Kanji images parsed by word.
+                                for (const symbol of words.symbols)
+                                    if (!getSave().hasSampleFor(symbol.text)) {
+                                        const sample = addSample(line.text, symbol.text, image, symbol.bbox);
+                                        preppedSamples.push(sample);
+
+                                        // Show image clip.
+                                        const tempImage = document.createElement('img');
+                                        tempImage.src = imageURL;
+                                        const bounds = symbol.bbox;
+                                        tempImage.style.objectViewBox = `xywh(${bounds.x0}px ${bounds.y0}px ${bounds.x1 - bounds.x0}px ${bounds.y1 - bounds.y0}px)`;
+                                        tempImage.setAttribute("word", symbol.text)
+                                        
+                                        document.getElementById("temporarySamples").appendChild(tempImage);
+                                    }
+                            }
+
+                setScanRejectButtonVisibility(true);
+                await new Promise(res => {
+
+                    // accept or reject logic here.
+                    document.getElementById("acceptScanButton").onclick = () => {
+                        // Accept means save all.
+                        preppedSamples.forEach(v => v.save());
+                        res();
+                    }
+
+                    document.getElementById("rejectScanButton").onclick = () => {
+                        // Do nothing and move on.
+                        res();
+                    }
+                });
+                setScanRejectButtonVisibility(false);
+            } else {
+                // If no pictures, reject!
+                document.getElementById("scanText").innerText = "No text recognized! Auto-rejecting after 5 seconds."
+                await new Promise(res => {
+                    setTimeout(() => {
+                        res();
+                    }, 5000);
+                });
+
+                // Do nothing to reject.
+            }
         }
         showOnly(containers.home)
     })
+}
+
+function setScanRejectButtonVisibility(visible) {
+    document.getElementById("acceptScanButton").hidden = !visible;
+    document.getElementById("rejectScanButton").hidden = !visible;
 }
 
 // On boot, if we have save then go to home screen... otherwise, go to startup...
