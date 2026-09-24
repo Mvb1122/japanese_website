@@ -33,9 +33,15 @@ const prompt = processor.apply_chat_template(messages, {
   add_generation_prompt: true,
 });
 
-export async function OCR(blob) {
+/**
+ * OCRs an image from blob.
+ * @param {Blob} blob image blob
+ * @param {(string) => void} callback streaming callback.
+ * @returns {Promise<string>} output text.
+ */
+export async function OCR(blob, callback) {
     // Prepare inputs
-    const image = RawImage.fromBlob(blob);
+    const image = await RawImage.fromBlob(blob);
     const inputs = await processor(image, prompt, { add_special_tokens: false });
 
     const outputs = await model.generate({
@@ -43,7 +49,7 @@ export async function OCR(blob) {
       max_new_tokens: 2048,
       streamer: new TextStreamer(processor.tokenizer, {
           skip_prompt: true,
-          // callback_function: (text) => { /* Do something with the streamed output */ },
+          callback_function: (text) => { if (callback) callback(text) },
       }),
     });
 

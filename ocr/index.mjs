@@ -16,6 +16,9 @@ const containers = {
         onLoad: () => {
             setupHomescreen();
         }
+    },
+    scan: {
+        id: "scanScreen"
     }
 }
 
@@ -74,12 +77,24 @@ function setupHomescreen() {
      * @type {HTMLInputElement}
      */
     const filesEl = document.getElementById("environment");
-    document.getElementById("environment").addEventListener('change', _ => {
+    document.getElementById("environment").addEventListener('change', async _ => {
+        showOnly(containers.scan)
         const files = filesEl.files;
-        const image = files.item(0);
+
+        for (let i = 0; i < files.length; i++) {
+            const image = files.item(i);
+            document.getElementById("scanTitle").innerText = image.name;
+            document.getElementById("scanImage").src = URL.createObjectURL(image);
+            document.getElementById("scanText").innerText = "";
         
-        // OCR it. 
-        OCR(image);
+            // OCR it. 
+            const output = await OCR(image, (chunk) => {
+                document.getElementById("scanText").innerText += chunk;
+            });
+
+            console.log(output);
+        }
+        showOnly(containers.home)
     })
 }
 
